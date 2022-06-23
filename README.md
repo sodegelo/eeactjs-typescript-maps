@@ -1,4 +1,6 @@
 # Getting Started with Create React App
+# npm install google-maps
+# npm install @mui/material @emotion/react @emotion/styled
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
