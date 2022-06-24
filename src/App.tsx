@@ -49,6 +49,55 @@ function App() {
   const mapRef = useRef<Map>()
   const [routes, setRoutes] = useState<Route[]>([]);
   const [routeSelected, setRouteSelected] = useState<Route | null>(null);
+  const socketIORef =   useRef<typeof Socket>();
+
+
+  useEffect(() => {
+    console.log(socketIORef, socketIORef.current?.connected);
+    if(socketIORef.current?.connected){
+      return;
+    }
+    socketIORef.current = ioConnect("http://localhost:3000");
+    
+    // Apenas testa a conexão
+    /*  socketIORef.current.on("connect", ()=>{
+      socketIORef.current?.emit("join", {teste:"test"});
+    }); */
+
+    const newPositionHandler = (data: {routeId: string; path: Position}) =>{
+      mapRef.current!.moveCurrentMarker(data.routeId, {
+        lat: data.path.lat,
+        lng: data.path.lng
+      });
+    };
+
+    socketIORef.current?.on("new-position", newPositionHandler);
+
+    const finishedRouteHandler = (data: {routeId: string}) =>{
+      mapRef.current?.removePath(data.routeId);
+      alert(`Rota ${data.routeId} finalizada.`);
+    }
+
+
+    socketIORef.current?.on("finished-route", finishedRouteHandler);
+
+    return () => {
+      socketIORef.current?.off("new-position", newPositionHandler);
+      socketIORef.current?.off("finished-route", finishedRouteHandler); 
+    };
+
+
+  },[mapRef]);
+
+
+  useEffect(() => {
+    return () =>{
+      if(socketIORef.current?.connected){
+        socketIORef.current?.disconnect();
+      }
+    }
+  },[]);
+
   useEffect(() => {
     (async ()=>{
       await loader.load();
@@ -86,8 +135,10 @@ function App() {
         },
         icon: makeMarkerIcon(color)
       }
-
-    )
+    );
+    socketIORef.current!.emit('get-directions', {
+      routeId: routeSelected!.id,
+    })
 
   }
   
