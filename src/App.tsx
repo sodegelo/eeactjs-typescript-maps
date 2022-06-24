@@ -41,7 +41,7 @@ type Route = {
 }
 
 const Form = styled('form')(({theme})=>({mergin: theme.spacing(1)}));
-const GOOGLE_MAPS_API_KEY = "AIzaSyDj4qW6ItUvQ75gGiBZZQbAwSaei0ZlHDM";
+const GOOGLE_MAPS_API_KEY = "Keydo env";
 const loader = new Loader(GOOGLE_MAPS_API_KEY);
 
 function App() {
